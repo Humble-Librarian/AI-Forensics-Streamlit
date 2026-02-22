@@ -22,7 +22,7 @@ GDRIVE_IDS = {
 # --- UI CONSTANTS ---
 APP_TITLE = "AI Forensic Console"
 APP_ICON = "🛡️"
-VERSION = "3.1.0"
+VERSION = "3.2.0"
 
 # --- HYPERPARAMETERS ---
 IMG_SIZE = 299

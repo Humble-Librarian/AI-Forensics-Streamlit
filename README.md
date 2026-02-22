@@ -1,8 +1,8 @@
-# 🛡️ AI Forensic Console (v3.1.0)
+# 🛡️ AI Forensic Console (v3.2.0)
 
 A high-fidelity digital forensic application for deepfake detection using multi-modal neural analysis.
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge.svg)](https://ai-forensics-stream-deployment.streamlit.app/)
+[Live Deployment](https://ai-forensics-stream-deployment.streamlit.app/)
 
 ## 📽️ Project Overview
 
@@ -57,7 +57,7 @@ The codebase is highly modularized for maintainability and scalability:
 
 ## 📊 Features
 -   **Real-time Kernel Log**: Monitor every step of the forensic scan.
--   **Frame-by-Frame Heatmap**: Visualize manipulation probability across the video timeline.
+-   **Frame-by-Frame Heatmap**: Visualize manipulation probability across the video timeline (High-density analysis up to 25 frames).
 -   **Institutional Reports**: Export detailed PDF forensic reports with case metadata and visual evidence.
 -   **Cloud Weights**: Automatic synchronization of latest model weights from secure cloud storage.
 
