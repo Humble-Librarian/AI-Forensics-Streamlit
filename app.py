@@ -207,24 +207,48 @@ def load_models():
         # 1. Download missing models on the fly
         for key in GDRIVE_IDS:
             if not os.path.exists(MODEL_FILES[key]):
-                print(f"Downloading {key} model...")
-                gdown.download(id=GDRIVE_IDS[key], output=MODEL_FILES[key], quiet=False)
+                st.info(f"Downloading {key} model from secure server...")
+                try:
+                    gdown.download(id=GDRIVE_IDS[key], output=MODEL_FILES[key], quiet=False)
+                except Exception as download_error:
+                    st.error(f"Failed to download {key} model: {download_error}")
+                    return None, device
 
-        # 2. Load into memory
-        models['spatial'] = torch.load(MODEL_FILES['spatial'], map_location=device)
-        models['spatial'].eval()
+        # 2. Instantiate and load into memory
+        st.info("Configuring Neural Architectures...")
         
-        models['srm'] = torch.load(MODEL_FILES['srm'], map_location=device)
-        models['srm'].eval()
-        
-        models['lstm'] = torch.load(MODEL_FILES['lstm'], map_location=device)
-        models['lstm'].eval()
+        # Spatial Model
+        models['spatial'] = SpatialXception(num_classes=2).to(device)
+        try:
+            models['spatial'].load_state_dict(torch.load(MODEL_FILES['spatial'], map_location=device))
+            models['spatial'].eval()
+        except Exception as e:
+            st.error(f"Spatial Model Loading Error: {e}")
+            return None, device
+            
+        # SRM Model
+        models['srm'] = SRMXception(num_classes=1).to(device)
+        try:
+            models['srm'].load_state_dict(torch.load(MODEL_FILES['srm'], map_location=device))
+            models['srm'].eval()
+        except Exception as e:
+            st.error(f"SRM Model Loading Error: {e}")
+            return None, device
+            
+        # LSTM Model
+        models['lstm'] = DeepfakeLSTM(input_size=4096).to(device)
+        try:
+            models['lstm'].load_state_dict(torch.load(MODEL_FILES['lstm'], map_location=device))
+            models['lstm'].eval()
+        except Exception as e:
+            st.error(f"LSTM Model Loading Error: {e}")
+            return None, device
         
         models['mtcnn'] = MTCNN(keep_all=False, select_largest=True, device=device, margin=14)
         return models, device
         
     except Exception as e:
-        print(f"Model Loading Error: {e}")
+        st.error(f"Critical System Initialization Error: {e}")
         return None, device
 
 models, DEVICE = load_models()

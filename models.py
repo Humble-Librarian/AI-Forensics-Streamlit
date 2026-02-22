@@ -42,11 +42,11 @@ class SpatialXception(nn.Module):
         self.model = timm.create_model('xception', pretrained=pretrained, num_classes=num_classes)
         
     def forward(self, x):
-        return self.model(x)
-    
-    # Helper to get features (removes fc)
-    def features(self, x):
-        return self.model.forward_features(x)
+        features = self.model.forward_features(x)
+        # Global average pool to get feature vector
+        pooled_features = torch.mean(features, dim=[2, 3])
+        logits = self.model.fc(pooled_features)
+        return pooled_features, logits
 
 # --- SRM MODEL ---
 class SRMXception(nn.Module):
@@ -63,8 +63,11 @@ class SRMXception(nn.Module):
     def forward(self, x):
         noise = self.srm(x)
         noise = self.compress(noise)
-        out = self.backbone(noise)
-        return out
+        features = self.backbone.forward_features(noise)
+        # Global average pool to get feature vector
+        pooled_features = torch.mean(features, dim=[2, 3])
+        logits = self.backbone.fc(pooled_features)
+        return pooled_features, logits
 
 # --- TEMPORAL MODEL (BiLSTM) ---
 class DeepfakeLSTM(nn.Module):
