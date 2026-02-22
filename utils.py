@@ -230,13 +230,18 @@ def generate_pdf_buffer(results, video_path):
     num_frames = len(frame_scores)
     
     if num_frames > 0:
-        box_width = (w - 80) / num_frames
+        gap = 2
+        available_width = w - 80
+        box_width = (available_width - (num_frames - 1) * gap) / num_frames
         box_height = 25
         
+        # Dynamic font sizing based on frame density
+        f_size = 9 if num_frames < 15 else 7
+        
         for i, score in enumerate(frame_scores):
-            bx = 40 + (i * box_width)
+            bx = 40 + (i * (box_width + gap))
             
-            c.setFont("Helvetica", 9)
+            c.setFont("Helvetica", f_size)
             c.setFillColor(colors.HexColor("#94a3b8"))
             c.drawCentredString(bx + box_width/2, y + 35, f"F{i+1}")
             
@@ -248,7 +253,7 @@ def generate_pdf_buffer(results, video_path):
             c.rect(bx, y, box_width, box_height, fill=1, stroke=0)
             
             c.setFillColor(colors.white)
-            c.setFont("Helvetica", 9)
+            c.setFont("Helvetica", f_size)
             c.drawCentredString(bx + box_width/2, y + 8, f"{score*100:.0f}%")
 
     y -= 80
