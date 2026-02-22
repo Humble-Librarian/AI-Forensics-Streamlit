@@ -175,12 +175,6 @@ with st.sidebar:
         </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
-    if st.button("+ NEW ANALYSIS", type="secondary"):
-        st.session_state.results = None
-        st.session_state.logs = []
-        st.session_state.video_path = None
-        st.rerun()
 
 # --- CENTER PANEL (Video, Meta, Frame Chart, Logs) ---
 with col1:
