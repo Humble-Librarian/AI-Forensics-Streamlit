@@ -225,7 +225,7 @@ def generate_pdf_buffer(results, video_path):
     c.setFillColor(colors.HexColor("#64748b"))
     c.drawString(40, y, "Sequential manipulation scores for individual frames:")
     
-    y -= 60
+    y -= 80
     frame_scores = results.get('frame_scores', [])
     num_frames = len(frame_scores)
     
