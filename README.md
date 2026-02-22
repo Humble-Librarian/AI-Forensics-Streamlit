@@ -2,7 +2,7 @@
 
 A high-fidelity digital forensic application for deepfake detection using multi-modal neural analysis.
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge.svg)](https://aiforensics-qxlwzrxr6hhbcacfwm3pk4.streamlit.app/)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge.svg)](https://ai-forensics-stream-deployment.streamlit.app/)
 
 ## 📽️ Project Overview
 
@@ -67,4 +67,4 @@ The codebase is highly modularized for maintainability and scalability:
 This tool is intended for research and professional forensic assistance. AI-generated results should always be peer-reviewed by qualified human analysts before being used in formal legal proceedings.
 
 ---
-© 2024 AI Forensic Console Project | [Deployment](https://aiforensics-qxlwzrxr6hhbcacfwm3pk4.streamlit.app/)
+© 2024 AI Forensic Console Project | [Deployment](https://ai-forensics-stream-deployment.streamlit.app/)
