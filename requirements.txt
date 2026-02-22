@@ -1,12 +1,19 @@
+# UI & Web Framework
 streamlit
+
+# Deep Learning & Computer Vision
 torch
 torchvision
 facenet-pytorch
 timm
 Pillow
 opencv-python-headless
-reportlab
+
+# Data Analysis & Visualization
 numpy
-plotly
 pandas
+plotly
+
+# Utilities
+reportlab
 gdown

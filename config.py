@@ -7,9 +7,22 @@ PROCESSED_FACES_DIR = "./processed_faces" # Directory containing 'Real' and 'Fak
 VIDEO_FEATURES_DIR = "./video_features"
 
 # Models
-SPATIAL_MODEL_PATH = "xception_spatial_stage1.pth"
-SRM_MODEL_PATH = "xception_srm_stage2.pth"
-TEMPORAL_MODEL_PATH = "final_bilstm_temporal.pth"
+MODEL_FILES = {
+    'spatial': 'spatial_model.pth',
+    'srm': 'srm_model.pth',
+    'lstm': 'lstm_model.pth'
+}
+
+GDRIVE_IDS = {
+    'spatial': '1ehE4MDI4cZ8kfmA8TzNM2r-_FRErtDaI', 
+    'srm': '1BgGqIiybERFuc57G3aHpLK3jMur7RNMC',
+    'lstm': '1JF-ixkxwFF52g3-Of-cV11eKF2w8t1yo'
+}
+
+# --- UI CONSTANTS ---
+APP_TITLE = "AI Forensic Console"
+APP_ICON = "🛡️"
+VERSION = "3.1.0"
 
 # --- HYPERPARAMETERS ---
 IMG_SIZE = 299
