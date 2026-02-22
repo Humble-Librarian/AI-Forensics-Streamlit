@@ -308,8 +308,8 @@ with col2:
 
     st.markdown("<div style='flex-grow: 1; min-height: 40px;'></div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='metric-title' style='font-size: 9px;'>SEQUENCE RESOLUTION (10-18)</div>", unsafe_allow_html=True)
-    st.session_state.seq_length = st.slider("Sequence Length", min_value=10, max_value=18, value=st.session_state.seq_length, step=1, label_visibility="collapsed")
+    st.markdown("<div class='metric-title' style='font-size: 9px;'>SEQUENCE RESOLUTION (10-25)</div>", unsafe_allow_html=True)
+    st.session_state.seq_length = st.slider("Sequence Length", min_value=10, max_value=25, value=st.session_state.seq_length, step=1, label_visibility="collapsed")
 
     if st.button("▶ RUN DIAGNOSTICS", type="primary"):
         if st.session_state.video_path:
