@@ -218,22 +218,31 @@ def load_models():
         st.info("Configuring Neural Architectures...")
         
         def smart_load_state_dict(model, path, target_module=None):
-            """Loads state dict and handles prefix mismatches."""
+            """Loads state dict and handles prefix mismatches by trying multiple strategies."""
             try:
                 state_dict = torch.load(path, map_location=device)
                 
-                # If target_module is provided, try loading into that first if state_dict keys match
-                load_target = getattr(model, target_module) if target_module else model
+                # Check for DataParallel/DistributedDataParallel prefixing
+                if all(k.startswith('module.') for k in state_dict.keys()):
+                    state_dict = {k[7:]: v for k, v in state_dict.items()}
                 
-                # Check for prefix mismatch
-                first_key = next(iter(state_dict))
-                if target_module and not first_key.startswith(f"{target_module}."):
-                    # State dict is flat, but model expects prefix. Load into sub-module.
-                    load_target.load_state_dict(state_dict)
-                else:
-                    # Direct load
-                    model.load_state_dict(state_dict)
-                return True
+                # Strategy 1: Direct Load (Target matches the full model structure)
+                try:
+                    model.load_state_dict(state_dict, strict=True)
+                    return True
+                except:
+                    # Strategy 2: Sub-module Load (Fallback for flat weights or weights targeting a backbone)
+                    if target_module:
+                        try:
+                            load_target = getattr(model, target_module)
+                            load_target.load_state_dict(state_dict, strict=True)
+                            return True
+                        except Exception as e2:
+                            st.error(f"Fallback Loading failed for {os.path.basename(path)}: {e2}")
+                    else:
+                        raise # Re-throw original error if no fallback target
+                return False
+
             except Exception as e:
                 st.error(f"Loading Error ({os.path.basename(path)}): {e}")
                 return False
