@@ -217,32 +217,45 @@ def load_models():
         # 2. Instantiate and load into memory
         st.info("Configuring Neural Architectures...")
         
+        def smart_load_state_dict(model, path, target_module=None):
+            """Loads state dict and handles prefix mismatches."""
+            try:
+                state_dict = torch.load(path, map_location=device)
+                
+                # If target_module is provided, try loading into that first if state_dict keys match
+                load_target = getattr(model, target_module) if target_module else model
+                
+                # Check for prefix mismatch
+                first_key = next(iter(state_dict))
+                if target_module and not first_key.startswith(f"{target_module}."):
+                    # State dict is flat, but model expects prefix. Load into sub-module.
+                    load_target.load_state_dict(state_dict)
+                else:
+                    # Direct load
+                    model.load_state_dict(state_dict)
+                return True
+            except Exception as e:
+                st.error(f"Loading Error ({os.path.basename(path)}): {e}")
+                return False
+
         # Spatial Model
         models['spatial'] = SpatialXception(num_classes=2).to(device)
-        try:
-            models['spatial'].load_state_dict(torch.load(MODEL_FILES['spatial'], map_location=device))
-            models['spatial'].eval()
-        except Exception as e:
-            st.error(f"Spatial Model Loading Error: {e}")
+        if not smart_load_state_dict(models['spatial'], MODEL_FILES['spatial'], 'model'):
             return None, device
+        models['spatial'].eval()
             
         # SRM Model
         models['srm'] = SRMXception(num_classes=1).to(device)
-        try:
-            models['srm'].load_state_dict(torch.load(MODEL_FILES['srm'], map_location=device))
-            models['srm'].eval()
-        except Exception as e:
-            st.error(f"SRM Model Loading Error: {e}")
+        # SRM weights might be just the backbone or the whole wrapper
+        if not smart_load_state_dict(models['srm'], MODEL_FILES['srm'], 'backbone'):
             return None, device
+        models['srm'].eval()
             
         # LSTM Model
         models['lstm'] = DeepfakeLSTM(input_size=4096).to(device)
-        try:
-            models['lstm'].load_state_dict(torch.load(MODEL_FILES['lstm'], map_location=device))
-            models['lstm'].eval()
-        except Exception as e:
-            st.error(f"LSTM Model Loading Error: {e}")
+        if not smart_load_state_dict(models['lstm'], MODEL_FILES['lstm']):
             return None, device
+        models['lstm'].eval()
         
         models['mtcnn'] = MTCNN(keep_all=False, select_largest=True, device=device, margin=14)
         return models, device
