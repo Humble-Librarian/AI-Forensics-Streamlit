@@ -12,12 +12,27 @@
   <img src="https://img.shields.io/badge/Computer%20Vision-OpenCV%20%7C%20MTCNN-blue?style=flat-square" />
   <img src="https://img.shields.io/badge/Reporting-ReportLab-orange?style=flat-square" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
+  <img src="https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square" />
 </p>
 
 <p align="center">
   <b>Uncover the Truth in Digital Media.</b><br/>
   Upload a video → Get instant, multi-model AI forensic diagnostics evaluating spatial artifacts, frequency noise, and temporal consistency.
 </p>
+
+## 📑 Table of Contents
+- [📸 Screenshots](#-screenshots)
+- [✨ Features](#-features)
+- [🏗️ Architecture](#️-architecture)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📁 Project Structure](#-project-structure)
+- [🚀 Getting Started](#-getting-started)
+- [📖 How It Works](#-how-it-works)
+- [🤖 Neural Models Used](#-neural-models-used)
+- [📊 Training Datasets](#-training-datasets)
+- [⚙️ Configuration](#️-configuration)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
 
 ---
 
