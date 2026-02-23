@@ -134,10 +134,7 @@ def run_analysis(video_path, seq_length):
         add_log("Inference failed to produce results.", "error")
 
 # ==========================================
-#        UI LAYOUT
 # ==========================================
-if st.session_state.current_page == "⊞ DASHBOARD":
-    col1, col_gap, col2 = st.columns([1.5, 0.05, 1])
 
 # --- LEFT SIDEBAR ---
 with st.sidebar:
@@ -183,6 +180,8 @@ with st.sidebar:
         </div>
     """, unsafe_allow_html=True)
     
+if st.session_state.current_page == "⊞ DASHBOARD":
+    col1, col_gap, col2 = st.columns([1.5, 0.05, 1])
 
     # --- CENTER PANEL (Video, Meta, Frame Chart, Logs) ---
     with col1:
@@ -338,8 +337,57 @@ with st.sidebar:
         st.markdown("</div>", unsafe_allow_html=True)
 
 elif st.session_state.current_page == '⏱ CASE HISTORY':
-    st.markdown('<h2>Case History</h2>', unsafe_allow_html=True)
-    st.markdown('<p style="color: #9ca3af;">View previous analysis records.</p>', unsafe_allow_html=True)
+    st.markdown("<div class='metrics-panel'>", unsafe_allow_html=True)
+    st.markdown("<div class='metric-title' style='font-size: 16px; margin-top:0;'>⏱ ANALYSIS HISTORY</div>", unsafe_allow_html=True)
+    
+    if not st.session_state.history:
+        st.markdown("""
+            <div style='background: #181820; border: 1px dashed #374151; border-radius: 8px; padding: 40px; text-align: center; margin-top: 20px;'>
+                <h3 style='color: #64748b; margin: 0;'>NO PREVIOUS CASES</h3>
+                <p style='color: #4b5563; font-size: 12px; margin-top: 8px;'>Run an analysis from the dashboard to see history here.</p>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        for idx, res in enumerate(st.session_state.history):
+            final = res['final']
+            if final > 0.6: badge, color = "MANIPULATED", "#ef4444"
+            elif final > 0.35: badge, color = "SUSPICIOUS", "#eab308"
+            else: badge, color = "AUTHENTIC", "#22c55e"
+            
+            st.markdown(f"""
+                <div style='background: #0b0b0f; border: 1px solid #272733; border-radius: 8px; padding: 16px; margin-top: 16px;'>
+                    <div style='display: flex; justify-content: space-between; align-items: flex-start;'>
+                        <div>
+                            <h4 style='color: #e5e7eb; margin: 0;'>{res['filename']}</h4>
+                            <p style='color: #64748b; font-size: 11px; margin-top: 4px; margin-bottom: 0;'>{res.get('timestamp', 'Unknown Time')} &bull; {res.get('seq_length', 'N/A')} frames</p>
+                        </div>
+                        <div style='text-align: right;'>
+                            <div style='color: {color}; font-size: 20px; font-weight: 800;'>{final*100:.1f}%</div>
+                            <div style='color: {color}; font-size: 10px; font-weight: 700; letter-spacing: 1px;'>{badge}</div>
+                        </div>
+                    </div>
+                    <div style='display: flex; gap: 16px; margin-top: 16px; border-top: 1px solid #1f1f2e; padding-top: 12px;'>
+                        <div style='flex: 1;'>
+                            <div style='color: #9ca3af; font-size: 9px; font-weight: 700;'>SPATIAL</div>
+                            <div style='color: #d1d5db; font-size: 12px; font-weight: 600;'>{res['s']*100:.0f}%</div>
+                        </div>
+                        <div style='flex: 1;'>
+                            <div style='color: #9ca3af; font-size: 9px; font-weight: 700;'>FREQUENCY</div>
+                            <div style='color: #d1d5db; font-size: 12px; font-weight: 600;'>{res['f']*100:.0f}%</div>
+                        </div>
+                        <div style='flex: 1;'>
+                            <div style='color: #9ca3af; font-size: 9px; font-weight: 700;'>TEMPORAL</div>
+                            <div style='color: #d1d5db; font-size: 12px; font-weight: 600;'>{res['t']*100:.0f}%</div>
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        if st.button("🗑 CLEAR HISTORY", type="secondary", key="clear_history_btn"):
+            st.session_state.history = []
+            st.rerun()
+            
+    st.markdown("</div>", unsafe_allow_html=True)
 
 elif st.session_state.current_page == '⚙ SETTINGS':
     st.markdown('<h2>System Settings</h2>', unsafe_allow_html=True)
