@@ -8,6 +8,10 @@ class SRMConv2d(nn.Module):
     """
     SRM Filter Layer for extracting high-frequency noise artifacts.
     Implements 3 standard SRM kernels for spatial richness modeling.
+    
+    This layer uses fixed, non-trainable weights to compute image residuals 
+    based on the SRM (Spatial Rich Model) filters, which helps in identifying 
+    subtle manipulation footprints.
     """
     def __init__(self):
         super(SRMConv2d, self).__init__()
@@ -44,6 +48,10 @@ class SpatialXception(nn.Module):
     """
     Xception-based Spatial Deepfake Detector.
     Analyzes pixel-level anomalies using a pretrained Xception backbone.
+    
+    The Xception architecture is effective at learning spatial artifacts
+    left by deepfake generation processes (e.g., blending boundaries, 
+    resolution inconsistencies).
     """
     def __init__(self, num_classes=2, pretrained=True):
         super().__init__()
@@ -62,6 +70,9 @@ class SRMXception(nn.Module):
     """
     Frequency-domain Deepfake Detector.
     Uses SRM filters to extract noise residuals before processing with Xception.
+    
+    By discarding image content and focusing on high-frequency noise, 
+    this model captures traces of upsampling and GAN-generated textures.
     """
     def __init__(self, num_classes=1, pretrained=True):
         super().__init__()
@@ -88,6 +99,9 @@ class DeepfakeLSTM(nn.Module):
     """
     Bi-Directional LSTM for Temporal Deepfake Detection.
     Analyzes sequence of spatial/frequency features for frame-to-frame inconsistencies.
+    
+    BiLSTM captures both forward and backward temporal dependencies,
+    making it ideal for spotting flickering or unnatural movements in videos.
     """
     def __init__(self, input_size=4096, hidden_size=128, num_layers=2):
         super(DeepfakeLSTM, self).__init__()
