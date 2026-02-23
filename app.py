@@ -390,5 +390,55 @@ elif st.session_state.current_page == '⏱ CASE HISTORY':
     st.markdown("</div>", unsafe_allow_html=True)
 
 elif st.session_state.current_page == '⚙ SETTINGS':
-    st.markdown('<h2>System Settings</h2>', unsafe_allow_html=True)
-    st.markdown('<p style="color: #9ca3af;">Configure deepfake detection parameters and system settings.</p>', unsafe_allow_html=True)
+    st.markdown("<div class='metrics-panel'>", unsafe_allow_html=True)
+    st.markdown("<div class='metric-title' style='font-size: 16px; margin-top:0;'>⚙ SYSTEM SETTINGS</div>", unsafe_allow_html=True)
+
+    colA, col_gap_set, colB = st.columns([1, 0.1, 1])
+
+    with colA:
+        st.markdown("<div class='metric-title'>CORE PARAMETERS</div>", unsafe_allow_html=True)
+        new_seq = st.slider("Global Sequence Length (Frames per Analysis)", min_value=10, max_value=25, value=st.session_state.seq_length, step=1)
+        if new_seq != st.session_state.seq_length:
+            st.session_state.seq_length = new_seq
+            st.rerun()
+
+        st.markdown("<div class='metric-title' style='margin-top: 30px;'>SYSTEM ACTIONS</div>", unsafe_allow_html=True)
+        if st.button("🔄 REBOOT NEURAL ENGINE", type="secondary", use_container_width=True):
+            st.cache_resource.clear()
+            st.rerun()
+            
+        if st.button("🗑 CLEAR SYSTEM LOGS", type="secondary", use_container_width=True):
+            st.session_state.logs = []
+            st.rerun()
+
+    with colB:
+        st.markdown("<div class='metric-title'>DIAGNOSTICS & HARDWARE</div>", unsafe_allow_html=True)
+        
+        status_color = "#22c55e" if torch.cuda.is_available() else "#eab308"
+        device_nm = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
+        st.markdown(f"""
+            <div style='background: #0b0b0f; border: 1px solid #272733; border-radius: 8px; padding: 16px; margin-bottom: 16px;'>
+                <div style='color: #9ca3af; font-size: 10px; font-weight: 700; margin-bottom: 4px;'>COMPUTE DEVICE</div>
+                <div style='color: {status_color}; font-size: 14px; font-weight: 600;'>{device_nm}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"""
+            <div style='background: #0b0b0f; border: 1px solid #272733; border-radius: 8px; padding: 16px;'>
+                <div style='color: #9ca3af; font-size: 10px; font-weight: 700; margin-bottom: 12px;'>MODEL WEIGHTS</div>
+        """, unsafe_allow_html=True)
+        
+        for m_name, path in config.MODEL_FILES.items():
+            exists = os.path.exists(path)
+            color = "#22c55e" if exists else "#ef4444"
+            icon = "✓" if exists else "✖"
+            st.markdown(f"""
+                <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #1f1f2e; padding-bottom: 8px;'>
+                    <span style='color: #d1d5db; font-size: 12px; font-weight: 600;'>{m_name.upper()}</span>
+                    <span style='color: {color}; font-size: 12px; font-weight: 800;'>{icon}</span>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
