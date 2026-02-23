@@ -8,6 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 
+
 def get_video_metadata(video_path, file_name):
     """
     Extracts essential metadata (Duration, Resolution, FPS) from a video file.
@@ -34,6 +35,7 @@ def get_video_metadata(video_path, file_name):
         "res": f"{width}x{height}",
         "fps": f"{int(fps)} FPS"
     }
+
 
 def generate_pdf_buffer(results, video_path):
     """
