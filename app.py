@@ -136,7 +136,8 @@ def run_analysis(video_path, seq_length):
 # ==========================================
 #        UI LAYOUT
 # ==========================================
-col1, col_gap, col2 = st.columns([1.5, 0.05, 1])
+if st.session_state.current_page == "⊞ DASHBOARD":
+    col1, col_gap, col2 = st.columns([1.5, 0.05, 1])
 
 # --- LEFT SIDEBAR ---
 with st.sidebar:
@@ -148,10 +149,17 @@ with st.sidebar:
         <p style='color: #4b5563; font-size: 10px; font-weight: 700; letter-spacing: 1px; margin-bottom: 30px; margin-top: -5px;'>CONSOLE v{config.VERSION}</p>
     """, unsafe_allow_html=True)
     
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = "⊞ DASHBOARD"
+
     st.markdown("<div class='nav-header'>MAIN</div>", unsafe_allow_html=True)
-    st.markdown("<div class='nav-item active'>⊞ DASHBOARD</div>", unsafe_allow_html=True)
-    st.markdown("<div class='nav-item'>⏱ CASE HISTORY</div>", unsafe_allow_html=True)
-    st.markdown("<div class='nav-item'>⚙ SETTINGS</div>", unsafe_allow_html=True)
+    page = st.radio(
+        "Navigation",
+        options=["⊞ DASHBOARD", "⏱ CASE HISTORY", "⚙ SETTINGS"],
+        label_visibility="collapsed",
+        key="nav_radio"
+    )
+    st.session_state.current_page = page
     
     st.markdown("<br><div class='nav-header' style='margin-top: 30px;'>SYSTEM</div>", unsafe_allow_html=True)
     
@@ -176,155 +184,163 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     
 
-# --- CENTER PANEL (Video, Meta, Frame Chart, Logs) ---
-with col1:
-    uploaded_file = st.file_uploader("", type=["mp4", "mov", "avi"], label_visibility="collapsed")
+    # --- CENTER PANEL (Video, Meta, Frame Chart, Logs) ---
+    with col1:
+        uploaded_file = st.file_uploader("", type=["mp4", "mov", "avi"], label_visibility="collapsed")
     
-    if uploaded_file is not None:
-        file_identifier = f"{uploaded_file.name}_{uploaded_file.size}"
-        if 'current_file_id' not in st.session_state or st.session_state.current_file_id != file_identifier or st.session_state.video_path is None or not os.path.exists(st.session_state.video_path):
-            uploaded_file.seek(0)
-            tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') 
-            tfile.write(uploaded_file.read())
-            tfile.close()
-            st.session_state.video_path = tfile.name
-            st.session_state.results = None
-            st.session_state.current_file_id = file_identifier
-            st.session_state.video_meta = utils.get_video_metadata(tfile.name, uploaded_file.name)
-            st.rerun()
+        if uploaded_file is not None:
+            file_identifier = f"{uploaded_file.name}_{uploaded_file.size}"
+            if 'current_file_id' not in st.session_state or st.session_state.current_file_id != file_identifier or st.session_state.video_path is None or not os.path.exists(st.session_state.video_path):
+                uploaded_file.seek(0)
+                tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') 
+                tfile.write(uploaded_file.read())
+                tfile.close()
+                st.session_state.video_path = tfile.name
+                st.session_state.results = None
+                st.session_state.current_file_id = file_identifier
+                st.session_state.video_meta = utils.get_video_metadata(tfile.name, uploaded_file.name)
+                st.rerun()
             
-    if st.session_state.video_path:
-        st.markdown("<div class='video-container'>", unsafe_allow_html=True)
-        st.video(st.session_state.video_path)
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-        m = st.session_state.video_meta
-        st.markdown(f"""
-            <div class='metadata-row'>
-                <div class='meta-pill'>📄 {m['name']}</div>
-                <div class='meta-pill'>⏱ {m['duration']}</div>
-                <div class='meta-pill'>📐 {m['res']}</div>
-                <div class='meta-pill'>🎞 {m['fps']}</div>
-            </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-            <div class='video-container' style='height: 360px; align-items: center; border: 1px dashed #374151;'>
-                <p style='color: #64748b; font-weight: 600;'>DRAG & DROP MEDIA HERE OR CLICK ABOVE</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-    st.markdown("<div class='frame-analysis-box'>", unsafe_allow_html=True)
-    st.markdown("<div class='metric-title' style='margin-top: 0;'>FRAME-BY-FRAME ANALYSIS</div>", unsafe_allow_html=True)
-    
-    if st.session_state.results:
-        scores = st.session_state.results['frame_scores']
-        blocks_html = "<div class='frame-blocks-row'>"
-        for score in scores:
-            c = "fk-red" if score > 0.6 else ("fk-yellow" if score > 0.35 else "fk-green")
-            blocks_html += f"<div class='frame-block {c}'></div>"
-        blocks_html += "</div>"
-        st.markdown(blocks_html, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-            <div class='frame-blocks-row'>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-                <div class='frame-block' style='background-color: #272733;'></div>
-            </div>
-        """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    st.markdown("<div class='log-container'>", unsafe_allow_html=True)
-    st.markdown("<div class='metric-title' style='margin-top: 0;'>SYSTEM KERNEL LOG</div>", unsafe_allow_html=True)
-    log_html = "".join(st.session_state.logs)
-    st.markdown(f"<div class='log-box'>{log_html if log_html else '<span style=\"color:#4b5563;\">SYSTEM STANDBY...</span>'}</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# --- RIGHT PANEL (Metrics & Actions) ---
-with col2:
-    st.markdown("<div class='metrics-panel'>", unsafe_allow_html=True)
-    
-    st.markdown("<div class='manipulation-label'>MANIPULATION PROBABILITY</div>", unsafe_allow_html=True)
-    
-    res = st.session_state.results
-    if res:
-        final = res['final']
-        if final > 0.6:
-            color_class, verdict, display_score = "score-red", "MANIPULATED", final*100
-            badge_class = "status-red"
-        elif final > 0.35:
-            color_class, verdict, display_score = "score-yellow", "SUSPICIOUS", final*100
-            badge_class = "status-yellow"
-        else:
-            color_class, verdict, display_score = "score-green", "AUTHENTIC", (1-final)*100
-            badge_class = "status-green"
-            
-        st.markdown(f"<div class='score-value {color_class}'>{display_score:.0f}%</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='status-badge {badge_class}'>{verdict}</div>", unsafe_allow_html=True)
-        
-        st.markdown("<div class='metric-title'>DETAILED METRICS</div>", unsafe_allow_html=True)
-        
-        def render_metric(label, val):
-            bar_color = "#6366f1"
-            st.markdown(f"""
-                <div class='metric-title' style='margin-top: 20px; margin-bottom: 5px; color: #d1d5db; font-size: 9px;'>{label}</div>
-                <div class='progress-row'>
-                    <div class='progress-bar-bg'><div class='progress-bar-fill' style='width: {val*100}%; background-color: {bar_color};'></div></div>
-                    <div class='progress-value'>{val*100:.0f}%</div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        render_metric("SPATIAL ARTIFACTS", res['s'])
-        render_metric("FREQUENCY NOISE", res['f'])
-        render_metric("TEMPORAL CONSISTENCY", res['t'])
-        
-    else:
-        st.markdown(f"<div class='score-value score-red'>--%</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='status-badge' style='background: rgba(255,255,255,0.05); color: #64748b; border: 1px solid rgba(255,255,255,0.1);'>AWAITING DATA</div>", unsafe_allow_html=True)
-        
-        st.markdown("<div class='metric-title'>DETAILED METRICS</div>", unsafe_allow_html=True)
-        for label in ["SPATIAL ARTIFACTS", "FREQUENCY NOISE", "TEMPORAL CONSISTENCY"]:
-            st.markdown(f"""
-                <div class='metric-title' style='margin-top: 20px; margin-bottom: 5px; color: #64748b; font-size: 9px;'>{label}</div>
-                <div class='progress-row'>
-                    <div class='progress-bar-bg'></div>
-                    <div class='progress-value' style='color: #64748b;'>--%</div>
-                </div>
-            """, unsafe_allow_html=True)
-
-    st.markdown("<div style='flex-grow: 1; min-height: 40px;'></div>", unsafe_allow_html=True)
-
-    st.markdown("<div class='metric-title' style='font-size: 9px;'>SEQUENCE RESOLUTION (10-25)</div>", unsafe_allow_html=True)
-    st.session_state.seq_length = st.slider("Sequence Length", min_value=10, max_value=25, value=st.session_state.seq_length, step=1, label_visibility="collapsed")
-
-    if st.button("▶ RUN DIAGNOSTICS", type="primary"):
         if st.session_state.video_path:
-            st.session_state.results = None
-            st.session_state.logs = []
-            run_analysis(st.session_state.video_path, st.session_state.seq_length)
-            st.rerun()
+            st.markdown("<div class='video-container'>", unsafe_allow_html=True)
+            st.video(st.session_state.video_path)
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+            m = st.session_state.video_meta
+            st.markdown(f"""
+                <div class='metadata-row'>
+                    <div class='meta-pill'>📄 {m['name']}</div>
+                    <div class='meta-pill'>⏱ {m['duration']}</div>
+                    <div class='meta-pill'>📐 {m['res']}</div>
+                    <div class='meta-pill'>🎞 {m['fps']}</div>
+                </div>
+            """, unsafe_allow_html=True)
         else:
-            add_log("No media file provided.", "error")
-            
-    if res:
-        pdf_buffer = utils.generate_pdf_buffer(res, st.session_state.video_path)
-        st.download_button(
-            label="⬇ EXPORT REPORT",
-            data=pdf_buffer,
-            file_name=f"Report_{res['filename']}.pdf",
-            mime="application/pdf",
-            use_container_width=True,
-            type="secondary"
-        )
-    else:
-        st.button("⬇ EXPORT REPORT", type="secondary", disabled=True, use_container_width=True)
+            st.markdown("""
+                <div class='video-container' style='height: 360px; align-items: center; border: 1px dashed #374151;'>
+                    <p style='color: #64748b; font-weight: 600;'>DRAG & DROP MEDIA HERE OR CLICK ABOVE</p>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("<div class='frame-analysis-box'>", unsafe_allow_html=True)
+        st.markdown("<div class='metric-title' style='margin-top: 0;'>FRAME-BY-FRAME ANALYSIS</div>", unsafe_allow_html=True)
+    
+        if st.session_state.results:
+            scores = st.session_state.results['frame_scores']
+            blocks_html = "<div class='frame-blocks-row'>"
+            for score in scores:
+                c = "fk-red" if score > 0.6 else ("fk-yellow" if score > 0.35 else "fk-green")
+                blocks_html += f"<div class='frame-block {c}'></div>"
+            blocks_html += "</div>"
+            st.markdown(blocks_html, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+                <div class='frame-blocks-row'>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                    <div class='frame-block' style='background-color: #272733;'></div>
+                </div>
+            """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+        st.markdown("<div class='log-container'>", unsafe_allow_html=True)
+        st.markdown("<div class='metric-title' style='margin-top: 0;'>SYSTEM KERNEL LOG</div>", unsafe_allow_html=True)
+        log_html = "".join(st.session_state.logs)
+        st.markdown(f"<div class='log-box'>{log_html if log_html else '<span style=\"color:#4b5563;\">SYSTEM STANDBY...</span>'}</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    # --- RIGHT PANEL (Metrics & Actions) ---
+    with col2:
+        st.markdown("<div class='metrics-panel'>", unsafe_allow_html=True)
+    
+        st.markdown("<div class='manipulation-label'>MANIPULATION PROBABILITY</div>", unsafe_allow_html=True)
+    
+        res = st.session_state.results
+        if res:
+            final = res['final']
+            if final > 0.6:
+                color_class, verdict, display_score = "score-red", "MANIPULATED", final*100
+                badge_class = "status-red"
+            elif final > 0.35:
+                color_class, verdict, display_score = "score-yellow", "SUSPICIOUS", final*100
+                badge_class = "status-yellow"
+            else:
+                color_class, verdict, display_score = "score-green", "AUTHENTIC", (1-final)*100
+                badge_class = "status-green"
+            
+            st.markdown(f"<div class='score-value {color_class}'>{display_score:.0f}%</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='status-badge {badge_class}'>{verdict}</div>", unsafe_allow_html=True)
+        
+            st.markdown("<div class='metric-title'>DETAILED METRICS</div>", unsafe_allow_html=True)
+        
+            def render_metric(label, val):
+                bar_color = "#6366f1"
+                st.markdown(f"""
+                    <div class='metric-title' style='margin-top: 20px; margin-bottom: 5px; color: #d1d5db; font-size: 9px;'>{label}</div>
+                    <div class='progress-row'>
+                        <div class='progress-bar-bg'><div class='progress-bar-fill' style='width: {val*100}%; background-color: {bar_color};'></div></div>
+                        <div class='progress-value'>{val*100:.0f}%</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            render_metric("SPATIAL ARTIFACTS", res['s'])
+            render_metric("FREQUENCY NOISE", res['f'])
+            render_metric("TEMPORAL CONSISTENCY", res['t'])
+        
+        else:
+            st.markdown(f"<div class='score-value score-red'>--%</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='status-badge' style='background: rgba(255,255,255,0.05); color: #64748b; border: 1px solid rgba(255,255,255,0.1);'>AWAITING DATA</div>", unsafe_allow_html=True)
+        
+            st.markdown("<div class='metric-title'>DETAILED METRICS</div>", unsafe_allow_html=True)
+            for label in ["SPATIAL ARTIFACTS", "FREQUENCY NOISE", "TEMPORAL CONSISTENCY"]:
+                st.markdown(f"""
+                    <div class='metric-title' style='margin-top: 20px; margin-bottom: 5px; color: #64748b; font-size: 9px;'>{label}</div>
+                    <div class='progress-row'>
+                        <div class='progress-bar-bg'></div>
+                        <div class='progress-value' style='color: #64748b;'>--%</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+        st.markdown("<div style='flex-grow: 1; min-height: 40px;'></div>", unsafe_allow_html=True)
+
+        st.markdown("<div class='metric-title' style='font-size: 9px;'>SEQUENCE RESOLUTION (10-25)</div>", unsafe_allow_html=True)
+        st.session_state.seq_length = st.slider("Sequence Length", min_value=10, max_value=25, value=st.session_state.seq_length, step=1, label_visibility="collapsed")
+
+        if st.button("▶ RUN DIAGNOSTICS", type="primary"):
+            if st.session_state.video_path:
+                st.session_state.results = None
+                st.session_state.logs = []
+                run_analysis(st.session_state.video_path, st.session_state.seq_length)
+                st.rerun()
+            else:
+                add_log("No media file provided.", "error")
+            
+        if res:
+            pdf_buffer = utils.generate_pdf_buffer(res, st.session_state.video_path)
+            st.download_button(
+                label="⬇ EXPORT REPORT",
+                data=pdf_buffer,
+                file_name=f"Report_{res['filename']}.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+                type="secondary"
+            )
+        else:
+            st.button("⬇ EXPORT REPORT", type="secondary", disabled=True, use_container_width=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+elif st.session_state.current_page == '⏱ CASE HISTORY':
+    st.markdown('<h2>Case History</h2>', unsafe_allow_html=True)
+    st.markdown('<p style="color: #9ca3af;">View previous analysis records.</p>', unsafe_allow_html=True)
+
+elif st.session_state.current_page == '⚙ SETTINGS':
+    st.markdown('<h2>System Settings</h2>', unsafe_allow_html=True)
+    st.markdown('<p style="color: #9ca3af;">Configure deepfake detection parameters and system settings.</p>', unsafe_allow_html=True)
