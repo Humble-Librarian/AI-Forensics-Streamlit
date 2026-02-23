@@ -1,5 +1,5 @@
-import torch
 import os
+import torch
 
 # --- PATHS ---
 DATA_ROOT = "." # Root of the project or data
