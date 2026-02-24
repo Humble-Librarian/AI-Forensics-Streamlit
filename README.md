@@ -258,7 +258,7 @@ Key environment variables in `config.py`:
 ```python
 VERSION = "3.2.0"          # Application Semantic Versioning
 IMG_SIZE = 299             # Target dimensional scaling for neural pass
-SEQ_LENGTH = 10            # Default frames isolated per video (10-25 editable in UI)
+SEQ_LENGTH = 10            # Default frames isolated per video (10-20 editable in UI)
 DEVICE = torch.device      # 'cuda:0' or 'cpu' auto-detected
 ```
 
