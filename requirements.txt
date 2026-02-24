@@ -2,6 +2,7 @@
 streamlit
 
 # Deep Learning & Computer Vision
+--extra-index-url https://download.pytorch.org/whl/cpu
 torch
 torchvision
 facenet-pytorch
