@@ -309,8 +309,8 @@ if st.session_state.current_page == "⊞ DASHBOARD":
 
         st.markdown("<div style='flex-grow: 1; min-height: 40px;'></div>", unsafe_allow_html=True)
 
-        st.markdown("<div class='metric-title' style='font-size: 9px;'>SEQUENCE RESOLUTION (10-25)</div>", unsafe_allow_html=True)
-        st.session_state.seq_length = st.slider("Sequence Length", min_value=10, max_value=25, value=st.session_state.seq_length, step=1, label_visibility="collapsed")
+        st.markdown("<div class='metric-title' style='font-size: 9px;'>SEQUENCE RESOLUTION (10-20)</div>", unsafe_allow_html=True)
+        st.session_state.seq_length = st.slider("Sequence Length", min_value=10, max_value=20, value=st.session_state.seq_length, step=1, label_visibility="collapsed")
 
         if st.button("▶ RUN DIAGNOSTICS", type="primary"):
             if st.session_state.video_path:
@@ -397,7 +397,7 @@ elif st.session_state.current_page == '⚙ SETTINGS':
 
     with colA:
         st.markdown("<div class='metric-title'>CORE PARAMETERS</div>", unsafe_allow_html=True)
-        new_seq = st.slider("Global Sequence Length (Frames per Analysis)", min_value=10, max_value=25, value=st.session_state.seq_length, step=1)
+        new_seq = st.slider("Global Sequence Length (Frames per Analysis)", min_value=10, max_value=20, value=st.session_state.seq_length, step=1)
         if new_seq != st.session_state.seq_length:
             st.session_state.seq_length = new_seq
             st.rerun()
